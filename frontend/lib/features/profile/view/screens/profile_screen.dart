@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/features/authentication/providers/auth_provider.dart';
+import 'package:frontend/features/authentication/view/screens/login_screen.dart';
 import 'package:frontend/features/profile/providers/profile_provider.dart';
 import 'package:frontend/features/profile/view/widgets/profile_info_card.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +16,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // TODO: implement initState
+
     Future.microtask(() {
       context.read<ProfileProvider>().getProfile();
     });
@@ -22,59 +24,130 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = context.watch<ProfileProvider>();
+    final provider = context.watch<ProfileProvider>();
+    final authProvider = context.read<AuthProvider>();
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F0F8),
+      backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
-        //leading: Padding(padding: EdgeInsetsGeometry.all(8)),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.notifications_none, color: Color(0xff4F46E5)),
-          ),
-        ],
-        backgroundColor: const Color(0xFFF0F0F8),
-        title: Text(
-          'P R O F I L E',
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: const Color(0xFFF5F6FA),
+        title: const Text(
+          "P R O F I L E",
           style: TextStyle(
             color: Color(0xff4F46E5),
             fontWeight: FontWeight.bold,
-            fontSize: 18,
           ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey,
-                child: Icon(size: 50, Icons.person),
-              ),
-              SizedBox(height: 25),
-              ProfileInfoCard(
-                info: profileProvider.profile?.username ?? 'unknown',
-              ),
-              SizedBox(height: 10),
-              ProfileInfoCard(
-                info: profileProvider.profile?.email ?? 'unknown@gmail.com',
-              ),
-              SizedBox(height: 10),
-              ProfileInfoCard(
-                info: profileProvider.profile?.role ?? 'unknown role',
-              ),
-              SizedBox(height: 10),
-              ProfileInfoCard(
-                info:
-                    profileProvider.profile?.department ?? 'unknown department',
-              ),
-            ],
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.notifications_none,
+              color: Color(0xff4F46E5),
+            ),
           ),
-        ),
+        ],
       ),
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+
+                  CircleAvatar(
+                    radius: 55,
+                    backgroundColor: const Color(0xff4F46E5),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 55,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    provider.profile?.username ?? "Unknown User",
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    provider.profile?.email ?? "",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(.05),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        ProfileInfoCard(
+                          title: "Role",
+                          info: provider.profile?.role ?? "Unknown",
+                        ),
+                        const SizedBox(height: 14),
+                        ProfileInfoCard(
+                          title: "Department",
+                          info: provider.profile?.department ?? "Unknown",
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        authProvider.logout();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LoginScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.logout_rounded, color: Colors.red),
+                      label: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Colors.red),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

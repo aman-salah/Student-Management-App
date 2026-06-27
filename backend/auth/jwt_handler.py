@@ -9,7 +9,7 @@ ALGORITHM="HS256"
 
 def create_access_token(payload:dict):
     to_encode=payload
-    expire = datetime.now(UTC) + timedelta(minutes=30)
+    expire = datetime.now(UTC) + timedelta(days=1)
     to_encode.update({"exp":expire})
     token=jwt.encode(payload,SECRET_KEY,ALGORITHM)
     return token
