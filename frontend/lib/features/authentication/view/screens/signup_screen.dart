@@ -4,8 +4,9 @@ import 'package:frontend/features/authentication/providers/auth_provider.dart';
 
 import 'package:frontend/features/authentication/view/widgets/my_button.dart';
 import 'package:frontend/features/authentication/view/widgets/my_textfield.dart';
+import 'package:frontend/features/authentication/view/widgets/role_selector.dart';
 
-import 'package:frontend/features/authentication/view/screens/login_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -47,12 +48,10 @@ class _SignupScreenState extends State<SignupScreen> {
       emailController.text.trim(),
       passwordController.text.trim(),
       selectedDepartment,
+      authProvider.selectedRole,
     );
     if (authProvider.errorMessage == null && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      context.go('/login');
     }
   }
 
@@ -69,15 +68,21 @@ class _SignupScreenState extends State<SignupScreen> {
                 //logo
                 SizedBox(height: 50),
                 SafeArea(child: Icon(Icons.lock, size: 80)),
-                SizedBox(height: 50),
+                SizedBox(height: 20),
 
                 //welcome back message
                 Text(
                   "Let's create an account for you",
                   style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                 ),
-                SizedBox(height: 50),
-
+                SizedBox(height: 20),
+                RoleSelector(
+                  selectedRole: authProvider.selectedRole,
+                  onChanged: (role) {
+                    authProvider.setSelectedRole(role);
+                  },
+                ),
+                SizedBox(height: 20),
                 //username textfield
                 MyTextfield(
                   controller: usernameController,
@@ -129,11 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   onTap: authProvider.isLoading ? null : () => signUp(context),
                   buttonText: authProvider.isLoading ? "Loading..." : "Sign Up",
                 ),
-                SizedBox(height: 40),
-
-                //continue with google or apple
                 SizedBox(height: 20),
-                //googl or apple
 
                 //already a member signup
                 Row(
@@ -146,12 +147,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     SizedBox(width: 7),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginScreen(),
-                          ),
-                        );
+                        context.go('/login');
                       },
                       child: Text(
                         "Login now",

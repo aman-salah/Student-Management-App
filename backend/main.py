@@ -7,8 +7,18 @@ from dashboard.routers.dashboard_router import dashboard_router
 from profiles.routers.profile_router import profile_router
 from students.models.student import Student
 from classes.routers.class_router import class_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app=FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth_router)
 app.include_router(student_router)
 app.include_router(class_router)

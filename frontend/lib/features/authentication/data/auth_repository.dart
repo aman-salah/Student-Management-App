@@ -13,12 +13,17 @@ class AuthRepository {
     String email,
     String password,
     String department,
+    String role,
   ) {
-    return service.signUp(username, email, password, department);
+    return service.signUp(username, email, password, department, role);
   }
 
-  Future<LoginResponse> login(String email, String password) async {
-    final response = await service.login(email, password);
+  Future<LoginResponse> login(
+    String email,
+    String password,
+    String role,
+  ) async {
+    final response = await service.login(email, password, role);
     await TokenStorage.saveToken(response.accessToken);
     return response;
   }

@@ -2,18 +2,21 @@ import 'package:frontend/core/Theme/theme_provider.dart';
 import 'package:frontend/features/authentication/data/auth_repository.dart';
 import 'package:frontend/features/authentication/data/auth_service.dart';
 import 'package:frontend/features/authentication/providers/auth_provider.dart';
-import 'package:frontend/features/class/data/class_repository.dart';
-import 'package:frontend/features/class/data/class_service.dart';
-import 'package:frontend/features/class/providers/class_provider.dart';
-import 'package:frontend/features/dashboard/data/dashboard_repository.dart';
-import 'package:frontend/features/dashboard/data/dashboard_service.dart';
-import 'package:frontend/features/dashboard/providers/dashboard_provider.dart';
-import 'package:frontend/features/profile/data/profile_repository.dart';
-import 'package:frontend/features/profile/data/profile_service.dart';
-import 'package:frontend/features/profile/providers/profile_provider.dart';
-import 'package:frontend/features/students/data/student_repository.dart';
-import 'package:frontend/features/students/data/student_service.dart';
-import 'package:frontend/features/students/providers/student_provider.dart';
+import 'package:frontend/features/mentor/class/data/class_repository.dart';
+import 'package:frontend/features/mentor/class/data/class_service.dart';
+import 'package:frontend/features/mentor/class/providers/class_provider.dart';
+import 'package:frontend/features/mentor/dashboard/data/dashboard_repository.dart';
+import 'package:frontend/features/mentor/dashboard/data/dashboard_service.dart';
+import 'package:frontend/features/mentor/dashboard/providers/dashboard_provider.dart';
+import 'package:frontend/features/mentor/profile/data/profile_repository.dart';
+import 'package:frontend/features/mentor/profile/data/profile_service.dart';
+import 'package:frontend/features/mentor/profile/providers/profile_provider.dart';
+import 'package:frontend/features/mentor/students/data/student_repository.dart';
+import 'package:frontend/features/mentor/students/data/student_service.dart';
+import 'package:frontend/features/mentor/students/providers/student_provider.dart';
+import 'package:frontend/features/student/class/data/student_class_repository.dart';
+import 'package:frontend/features/student/class/data/student_class_service.dart';
+import 'package:frontend/features/student/class/providers/student_class_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -35,9 +38,20 @@ class ProviderSetup {
 
     final profileService = ProfileService();
     final profileRepository = ProfileRepository(service: profileService);
+
+    final studentClassService = StudentClassService();
+    final studentClassRepository = StudentClassRepository(
+      service: studentClassService,
+    );
     return [
       ChangeNotifierProvider(
-        create: (_) => AuthProvider(repository: authRepository),
+        create: (_) {
+          final provider = AuthProvider(repository: authRepository);
+
+          provider.loadUser();
+
+          return provider;
+        },
       ),
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ChangeNotifierProvider(
@@ -51,6 +65,9 @@ class ProviderSetup {
       ),
       ChangeNotifierProvider(
         create: (_) => ProfileProvider(repository: profileRepository),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => StudentClassProvider(repository: studentClassRepository),
       ),
     ];
   }

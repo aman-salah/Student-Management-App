@@ -33,8 +33,20 @@ def delete_class(class_id:int,db:Session=Depends(get_db)):
 #get all classes
 @class_router.get("/all",response_model=List[ClassResponse])
 def get_all_classes(db:Session=Depends(get_db),current_user:User=Depends(get_current_user)):
-    classes=db.query(TeacherClass).filter(TeacherClass.teacher_id==current_user.id).all()
-    return classes
+    if current_user.role=="mentor":
+        classes=db.query(TeacherClass).filter(TeacherClass.teacher_id==current_user.id).all()
+        return classes
+    elif current_user.role=="student":
+        student=db.query(Student).filter(Student.user_id==current_user.id).first()
+        if not student:
+            raise HTTPException(status_code=404,detail="Student record not found")
+        enrollments=db.query(Enrollment).filter(Enrollment.student_id==student.studid).all()
+        class_ids=[e.class_id for e in enrollments]
+
+        classes=db.query(TeacherClass).filter(TeacherClass.id.in_(class_ids)).all()
+        return classes
+    raise HTTPException(status_code=403,detail="Invalid user role")
+
 
 #add student to class
 @class_router.post("/enroll",response_model=EnrollmentCreate)

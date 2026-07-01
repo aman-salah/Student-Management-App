@@ -3,12 +3,14 @@ class LoginResponse {
   final String tokenType;
   final String username;
   final String email;
+  final String role;
 
   LoginResponse({
     required this.accessToken,
     required this.tokenType,
     required this.username,
     required this.email,
+    required this.role,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class LoginResponse {
       tokenType: json["token_type"],
       username: json["username"],
       email: json["email"],
+      role: json["role"],
     );
   }
 }

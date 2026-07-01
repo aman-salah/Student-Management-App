@@ -23,7 +23,21 @@ def add_student(student:StudentAdd,db:Session=Depends(get_db)):
 ).first()
     if existing_student:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="student already exist")
+    # Check if this student has already created an account
+    existing_user = (
+        db.query(User)
+        .filter(
+            User.email == student.email,
+            User.role == "student",
+        )
+        .first()
+    )
     new_student=Student(name=student.name,studid=student.studid,department=student.department,age=student.age,email=student.email,contact=student.contact)
+
+     # Link the student record to the user account
+    if existing_user:
+        new_student.user_id = existing_user.id
+        
     db.add(new_student)
     db.commit()
     db.refresh(new_student)

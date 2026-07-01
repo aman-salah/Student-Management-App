@@ -3,9 +3,9 @@ import 'package:frontend/features/authentication/providers/auth_provider.dart';
 
 import 'package:frontend/features/authentication/view/widgets/my_button.dart';
 import 'package:frontend/features/authentication/view/widgets/my_textfield.dart';
-import 'package:frontend/features/authentication/view/widgets/square_tile.dart';
-import 'package:frontend/features/authentication/view/screens/signup_screen.dart';
-import 'package:frontend/main_screen.dart';
+import 'package:frontend/features/authentication/view/widgets/role_selector.dart';
+
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,12 +25,13 @@ class _LoginScreenState extends State<LoginScreen> {
     await authProvider.login(
       emailController.text.trim(),
       passwordController.text.trim(),
+      authProvider.selectedRole,
     );
-    if (authProvider.isLoggedIn && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => MainScreen()),
-      );
+    if (!mounted || !authProvider.isLoggedIn) return;
+    if (authProvider.currentUser?.role == "mentor") {
+      context.go('/mentor/dashboard');
+    } else if (authProvider.currentUser?.role == "student") {
+      context.go('/student/dashboard');
     }
   }
 
@@ -62,8 +63,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   "Welcome back you've been missed",
                   style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                 ),
-                SizedBox(height: 50),
-
+                SizedBox(height: 20),
+                RoleSelector(
+                  selectedRole: authProvider.selectedRole,
+                  onChanged: (role) {
+                    authProvider.setSelectedRole(role);
+                  },
+                ),
+                SizedBox(height: 20),
                 //email textfield
                 MyTextfield(
                   controller: emailController,
@@ -117,29 +124,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Expanded(
                         child: Divider(thickness: 0.5, color: Colors.grey[400]),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          "Or continue with",
-                          style: TextStyle(color: Colors.grey[500]),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(thickness: 0.5, color: Colors.grey[400]),
-                      ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
-                //google or apple
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SquareTile(imagePath: 'assets/images/google.png'),
-                    SizedBox(width: 10),
-                    SquareTile(imagePath: 'assets/images/apple.png'),
-                  ],
-                ),
+
                 SizedBox(height: 20),
 
                 //not a member signup
@@ -153,12 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(width: 7),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignupScreen(),
-                          ),
-                        );
+                        context.push('/signup');
                       },
                       child: Text(
                         "Register now",

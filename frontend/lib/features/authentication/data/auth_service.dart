@@ -11,6 +11,7 @@ class AuthService {
     String email,
     String password,
     String department,
+    String role,
   ) async {
     final response = await http.post(
       Uri.parse('${ApiConstants.baseUrl}/auth/signup'),
@@ -20,6 +21,7 @@ class AuthService {
         'email': email,
         'password': password,
         'department': department,
+        'role': role,
       }),
     );
     if (response.statusCode == 200) {
@@ -31,11 +33,15 @@ class AuthService {
     }
   }
 
-  Future<LoginResponse> login(String email, String password) async {
+  Future<LoginResponse> login(
+    String email,
+    String password,
+    String role,
+  ) async {
     final response = await http.post(
       Uri.parse('${ApiConstants.baseUrl}/auth/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({'email': email, 'password': password, 'role': role}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
